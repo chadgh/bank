@@ -11,7 +11,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func runtest() error {
+func runtest(verbose bool) error {
 	ctx := context.Background()
 
 	db, err := sql.Open("postgres", "user=postgres dbname=postgres password=postgres sslmode=disable")
@@ -53,15 +53,21 @@ func runtest() error {
 		OK = "OK"
 	}
 	fmt.Println("expected 3.19 ", OK)
-	fmt.Println("account balance: ", accountBalance.Balance)
-	// fmt.Println("transactions")
-	// transactions, err := repo.GetTransactions(ctx, "1")
-	// if err != nil {
-	// 	return err
-	// }
+	if OK != "OK" {
+		fmt.Println("account balance: ", accountBalance.Balance)
+	}
+	if verbose {
+		fmt.Println("transactions")
+		transactions, err := repo.GetTransactions(ctx, "1")
+		if err != nil {
+			return err
+		}
 
-	// for _, tr := range transactions {
-	// 	fmt.Printf("\t message:%s amount:%s type:%s\n", tr.MessageID, tr.Amount, tr.TransactionType)
-	// }
+		for _, tr := range transactions {
+			fmt.Printf("\t message:%s amount:%s type:%s\n", tr.MessageID, tr.Amount, tr.TransactionType)
+		}
+
+	}
+	scripts.TruncateAll(db)
 	return nil
 }

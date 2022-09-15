@@ -10,9 +10,11 @@ import (
 
 func main() {
 	runtests := flag.Bool("test", false, "run the tests")
+	verbose := flag.Bool("verbose", false, "verbose output")
 	flag.Parse()
+
 	if *runtests {
-		if err := runtest(); err != nil {
+		if err := runtest(*verbose); err != nil {
 			log.Fatal(err)
 		}
 	} else {

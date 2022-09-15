@@ -27,6 +27,10 @@ test:
 	@cd src && \
 	go run . -test
 
+vtest:
+	@cd src && \
+	go run . -test -verbose
+
 sqlc:
 	@cd src/database && \
 	sqlc generate

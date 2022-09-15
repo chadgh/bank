@@ -9,3 +9,5 @@ CREATE TABLE account_transactions (
     transaction_type TRANSACTION_TYPE_ENUM NOT NULL,
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX idx_transaction_user_id ON account_transactions(user_id);
