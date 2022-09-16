@@ -23,3 +23,5 @@ To open a database shell, `make dbshell`.
 
 This project assumes you are using a postgres database.
 It can also be developed/run in a GitHub Codespace.
+
+The insomnia file can be imported into insomnia for testing the APIs
