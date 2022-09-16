@@ -10,7 +10,7 @@ import (
 )
 
 const getTransactions = `-- name: GetTransactions :many
-SELECT message_id, user_id, amount_cents, currency, transaction_type, created FROM account_transactions WHERE user_id = $1 ORDER BY created
+SELECT message_id, user_id, credit_cents, debit_cents, currency, created FROM account_transactions WHERE user_id = $1 ORDER BY created
 `
 
 func (q *Queries) GetTransactions(ctx context.Context, userID string) ([]AccountTransaction, error) {
@@ -25,9 +25,9 @@ func (q *Queries) GetTransactions(ctx context.Context, userID string) ([]Account
 		if err := rows.Scan(
 			&i.MessageID,
 			&i.UserID,
-			&i.AmountCents,
+			&i.CreditCents,
+			&i.DebitCents,
 			&i.Currency,
-			&i.TransactionType,
 			&i.Created,
 		); err != nil {
 			return nil, err

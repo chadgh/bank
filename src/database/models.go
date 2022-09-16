@@ -6,57 +6,13 @@ package database
 
 import (
 	"database/sql"
-	"database/sql/driver"
-	"fmt"
 )
-
-type TransactionTypeEnum string
-
-const (
-	TransactionTypeEnumCREDIT TransactionTypeEnum = "CREDIT"
-	TransactionTypeEnumDEBIT  TransactionTypeEnum = "DEBIT"
-)
-
-func (e *TransactionTypeEnum) Scan(src interface{}) error {
-	switch s := src.(type) {
-	case []byte:
-		*e = TransactionTypeEnum(s)
-	case string:
-		*e = TransactionTypeEnum(s)
-	default:
-		return fmt.Errorf("unsupported scan type for TransactionTypeEnum: %T", src)
-	}
-	return nil
-}
-
-type NullTransactionTypeEnum struct {
-	TransactionTypeEnum TransactionTypeEnum
-	Valid               bool // Valid is true if String is not NULL
-}
-
-// Scan implements the Scanner interface.
-func (ns *NullTransactionTypeEnum) Scan(value interface{}) error {
-	if value == nil {
-		ns.TransactionTypeEnum, ns.Valid = "", false
-		return nil
-	}
-	ns.Valid = true
-	return ns.TransactionTypeEnum.Scan(value)
-}
-
-// Value implements the driver Valuer interface.
-func (ns NullTransactionTypeEnum) Value() (driver.Value, error) {
-	if !ns.Valid {
-		return nil, nil
-	}
-	return ns.TransactionTypeEnum, nil
-}
 
 type AccountTransaction struct {
-	MessageID       string              `json:"message_id"`
-	UserID          string              `json:"user_id"`
-	AmountCents     int32               `json:"amount_cents"`
-	Currency        sql.NullString      `json:"currency"`
-	TransactionType TransactionTypeEnum `json:"transaction_type"`
-	Created         sql.NullTime        `json:"created"`
+	MessageID   string         `json:"message_id"`
+	UserID      string         `json:"user_id"`
+	CreditCents int32          `json:"credit_cents"`
+	DebitCents  int32          `json:"debit_cents"`
+	Currency    sql.NullString `json:"currency"`
+	Created     sql.NullTime   `json:"created"`
 }

@@ -30,8 +30,11 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getTransactionsStmt, err = db.PrepareContext(ctx, getTransactions); err != nil {
 		return nil, fmt.Errorf("error preparing query GetTransactions: %w", err)
 	}
-	if q.insertTransactionStmt, err = db.PrepareContext(ctx, insertTransaction); err != nil {
-		return nil, fmt.Errorf("error preparing query InsertTransaction: %w", err)
+	if q.insertCreditTransactionStmt, err = db.PrepareContext(ctx, insertCreditTransaction); err != nil {
+		return nil, fmt.Errorf("error preparing query InsertCreditTransaction: %w", err)
+	}
+	if q.insertDebitTransactionStmt, err = db.PrepareContext(ctx, insertDebitTransaction); err != nil {
+		return nil, fmt.Errorf("error preparing query InsertDebitTransaction: %w", err)
 	}
 	return &q, nil
 }
@@ -48,9 +51,14 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getTransactionsStmt: %w", cerr)
 		}
 	}
-	if q.insertTransactionStmt != nil {
-		if cerr := q.insertTransactionStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing insertTransactionStmt: %w", cerr)
+	if q.insertCreditTransactionStmt != nil {
+		if cerr := q.insertCreditTransactionStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing insertCreditTransactionStmt: %w", cerr)
+		}
+	}
+	if q.insertDebitTransactionStmt != nil {
+		if cerr := q.insertDebitTransactionStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing insertDebitTransactionStmt: %w", cerr)
 		}
 	}
 	return err
@@ -90,19 +98,21 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db                    DBTX
-	tx                    *sql.Tx
-	getAccountBalanceStmt *sql.Stmt
-	getTransactionsStmt   *sql.Stmt
-	insertTransactionStmt *sql.Stmt
+	db                          DBTX
+	tx                          *sql.Tx
+	getAccountBalanceStmt       *sql.Stmt
+	getTransactionsStmt         *sql.Stmt
+	insertCreditTransactionStmt *sql.Stmt
+	insertDebitTransactionStmt  *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:                    tx,
-		tx:                    tx,
-		getAccountBalanceStmt: q.getAccountBalanceStmt,
-		getTransactionsStmt:   q.getTransactionsStmt,
-		insertTransactionStmt: q.insertTransactionStmt,
+		db:                          tx,
+		tx:                          tx,
+		getAccountBalanceStmt:       q.getAccountBalanceStmt,
+		getTransactionsStmt:         q.getTransactionsStmt,
+		insertCreditTransactionStmt: q.insertCreditTransactionStmt,
+		insertDebitTransactionStmt:  q.insertDebitTransactionStmt,
 	}
 }

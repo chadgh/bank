@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 
 	_ "github.com/lib/pq"
@@ -18,6 +17,8 @@ func main() {
 			log.Fatal(err)
 		}
 	} else {
-		fmt.Println("yup")
+		if err := runserver(*verbose); err != nil {
+			log.Fatal(err)
+		}
 	}
 }

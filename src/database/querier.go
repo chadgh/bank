@@ -11,7 +11,8 @@ import (
 type Querier interface {
 	GetAccountBalance(ctx context.Context, userID string) (int32, error)
 	GetTransactions(ctx context.Context, userID string) ([]AccountTransaction, error)
-	InsertTransaction(ctx context.Context, arg InsertTransactionParams) (AccountTransaction, error)
+	InsertCreditTransaction(ctx context.Context, arg InsertCreditTransactionParams) (AccountTransaction, error)
+	InsertDebitTransaction(ctx context.Context, arg InsertDebitTransactionParams) (AccountTransaction, error)
 }
 
 var _ Querier = (*Queries)(nil)

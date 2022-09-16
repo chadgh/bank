@@ -10,36 +10,67 @@ import (
 	"database/sql"
 )
 
-const insertTransaction = `-- name: InsertTransaction :one
+const insertCreditTransaction = `-- name: InsertCreditTransaction :one
 INSERT INTO account_transactions 
-    (message_id, user_id, amount_cents, currency, transaction_type)
-    VALUES ($1, $2, $3, $4, $5)
-    RETURNING message_id, user_id, amount_cents, currency, transaction_type, created
+    (message_id, user_id, credit_cents, currency)
+    VALUES ($1, $2, $3, $4)
+    RETURNING message_id, user_id, credit_cents, debit_cents, currency, created
 `
 
-type InsertTransactionParams struct {
-	MessageID       string              `json:"message_id"`
-	UserID          string              `json:"user_id"`
-	AmountCents     int32               `json:"amount_cents"`
-	Currency        sql.NullString      `json:"currency"`
-	TransactionType TransactionTypeEnum `json:"transaction_type"`
+type InsertCreditTransactionParams struct {
+	MessageID   string         `json:"message_id"`
+	UserID      string         `json:"user_id"`
+	CreditCents int32          `json:"credit_cents"`
+	Currency    sql.NullString `json:"currency"`
 }
 
-func (q *Queries) InsertTransaction(ctx context.Context, arg InsertTransactionParams) (AccountTransaction, error) {
-	row := q.queryRow(ctx, q.insertTransactionStmt, insertTransaction,
+func (q *Queries) InsertCreditTransaction(ctx context.Context, arg InsertCreditTransactionParams) (AccountTransaction, error) {
+	row := q.queryRow(ctx, q.insertCreditTransactionStmt, insertCreditTransaction,
 		arg.MessageID,
 		arg.UserID,
-		arg.AmountCents,
+		arg.CreditCents,
 		arg.Currency,
-		arg.TransactionType,
 	)
 	var i AccountTransaction
 	err := row.Scan(
 		&i.MessageID,
 		&i.UserID,
-		&i.AmountCents,
+		&i.CreditCents,
+		&i.DebitCents,
 		&i.Currency,
-		&i.TransactionType,
+		&i.Created,
+	)
+	return i, err
+}
+
+const insertDebitTransaction = `-- name: InsertDebitTransaction :one
+INSERT INTO account_transactions 
+    (message_id, user_id, debit_cents, currency)
+    VALUES ($1, $2, $3, $4)
+    RETURNING message_id, user_id, credit_cents, debit_cents, currency, created
+`
+
+type InsertDebitTransactionParams struct {
+	MessageID  string         `json:"message_id"`
+	UserID     string         `json:"user_id"`
+	DebitCents int32          `json:"debit_cents"`
+	Currency   sql.NullString `json:"currency"`
+}
+
+func (q *Queries) InsertDebitTransaction(ctx context.Context, arg InsertDebitTransactionParams) (AccountTransaction, error) {
+	row := q.queryRow(ctx, q.insertDebitTransactionStmt, insertDebitTransaction,
+		arg.MessageID,
+		arg.UserID,
+		arg.DebitCents,
+		arg.Currency,
+	)
+	var i AccountTransaction
+	err := row.Scan(
+		&i.MessageID,
+		&i.UserID,
+		&i.CreditCents,
+		&i.DebitCents,
+		&i.Currency,
 		&i.Created,
 	)
 	return i, err

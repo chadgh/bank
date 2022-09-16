@@ -17,11 +17,15 @@ reset-db: db-reset migrate
 
 build:
 	@cd src && \
-	go build ./...
+	go build ./... -o bank
 
 run:
 	@cd src && \
 	go run .
+
+vrun:
+	@cd src && \
+	go run . -verbose
 
 test:
 	@cd src && \

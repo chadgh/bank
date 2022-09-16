@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"chadgh.com/bank/database"
+	"chadgh.com/bank/model"
 	"chadgh.com/bank/repository"
 	"chadgh.com/bank/scripts"
 	_ "github.com/lib/pq"
@@ -21,24 +21,24 @@ func runtest(verbose bool) error {
 	scripts.TruncateAll(db)
 	repo := repository.NewTransactionRepo(db)
 
-	_, err = repo.InsertTransaction(ctx, "1", "1", "1.20", "USD", database.TransactionTypeEnumCREDIT)
+	_, err = repo.InsertTransaction(ctx, "1", "1", "100.00", "USD", model.CREDIT)
 	if err != nil {
 		return err
 	}
-	_, err = repo.InsertTransaction(ctx, "2", "1", "5.00", "USD", database.TransactionTypeEnumCREDIT)
+	_, err = repo.InsertTransaction(ctx, "2", "1", "500.00", "USD", model.CREDIT)
 	if err != nil {
 		return err
 	}
-	_, err = repo.InsertTransaction(ctx, "3", "1", "3.01", "USD", database.TransactionTypeEnumDEBIT)
+	_, err = repo.InsertTransaction(ctx, "3", "1", "1.01", "USD", model.DEBIT)
 	if err != nil {
 		return err
 	}
 
-	_, err = repo.InsertTransaction(ctx, "4", "2", "100.00", "USD", database.TransactionTypeEnumCREDIT)
+	_, err = repo.InsertTransaction(ctx, "4", "2", "100.00", "USD", model.CREDIT)
 	if err != nil {
 		return err
 	}
-	_, err = repo.InsertTransaction(ctx, "5", "2", "3.00", "USD", database.TransactionTypeEnumDEBIT)
+	_, err = repo.InsertTransaction(ctx, "5", "2", "3.00", "USD", model.DEBIT)
 	if err != nil {
 		return err
 	}
@@ -49,10 +49,10 @@ func runtest(verbose bool) error {
 	}
 
 	OK := "Error"
-	if accountBalance.Balance == "3.19" {
+	if accountBalance.Balance == "598.99" {
 		OK = "OK"
 	}
-	fmt.Println("expected 3.19 ", OK)
+	fmt.Println("expected 598.99 ", OK)
 	if OK != "OK" {
 		fmt.Println("account balance: ", accountBalance.Balance)
 	}

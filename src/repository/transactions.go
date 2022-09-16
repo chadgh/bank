@@ -3,12 +3,10 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"fmt"
-	"strconv"
-	"strings"
 
 	"chadgh.com/bank/database"
 	"chadgh.com/bank/model"
+	"chadgh.com/bank/scripts"
 )
 
 type TransactionsRepo interface {
@@ -18,8 +16,8 @@ type TransactionsRepo interface {
 		userID string,
 		amount string,
 		currency string,
-		transactionType database.TransactionTypeEnum,
-	) (*model.Transaction, error)
+		transactionType model.CreditOrDebit,
+	) (*model.Account, error)
 	GetAccountBalance(
 		ctx context.Context,
 		userID string,
@@ -46,33 +44,45 @@ func (t transactionsImp) InsertTransaction(
 	userID string,
 	amount string,
 	currency string,
-	transactionType database.TransactionTypeEnum,
-) (*model.Transaction, error) {
+	transactionType model.CreditOrDebit,
+) (*model.Account, error) {
 	queries, err := database.Prepare(ctx, t.db)
 	if err != nil {
 		return nil, err
 	}
-	amount_cents, err := convertAmountToCents(amount)
+	amount_cents, err := scripts.ConvertAmountToCents(amount)
 	if err != nil {
 		return nil, err
 	}
-	transaction, err := queries.InsertTransaction(ctx, database.InsertTransactionParams{
-		MessageID:       messageID,
-		UserID:          userID,
-		AmountCents:     amount_cents,
-		Currency:        sql.NullString{String: currency, Valid: true},
-		TransactionType: transactionType,
-	})
+
+	if transactionType == model.CREDIT {
+		_, err := queries.InsertCreditTransaction(ctx, database.InsertCreditTransactionParams{
+			MessageID:   messageID,
+			UserID:      userID,
+			CreditCents: amount_cents,
+			Currency:    sql.NullString{String: currency, Valid: true},
+		})
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		_, err := queries.InsertDebitTransaction(ctx, database.InsertDebitTransactionParams{
+			MessageID:  messageID,
+			UserID:     userID,
+			DebitCents: amount_cents,
+			Currency:   sql.NullString{String: currency, Valid: true},
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	balance, err := t.GetAccountBalance(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
-	return &model.Transaction{
-		MessageID:       transaction.MessageID,
-		UserID:          transaction.UserID,
-		Amount:          convertCentsToAmount(transaction.AmountCents),
-		Currency:        transaction.Currency.String,
-		TransactionType: transaction.TransactionType,
-	}, nil
+
+	return balance, nil
 }
 
 func (t transactionsImp) GetAccountBalance(
@@ -89,7 +99,7 @@ func (t transactionsImp) GetAccountBalance(
 	}
 	return &model.Account{
 		UserID:  userID,
-		Balance: convertCentsToAmount(int32(balance)),
+		Balance: scripts.ConvertCentsToAmount(int32(balance)),
 	}, nil
 }
 
@@ -108,34 +118,20 @@ func (t transactionsImp) GetTransactions(
 
 	var transactions []*model.Transaction
 	for _, transaction := range dbTransactions {
+		transactionType := model.CREDIT
+		amount := transaction.CreditCents
+		if amount == 0 {
+			amount = transaction.DebitCents
+			transactionType = model.DEBIT
+		}
 		transactions = append(transactions, &model.Transaction{
 			MessageID:       transaction.MessageID,
 			UserID:          transaction.UserID,
-			Amount:          convertCentsToAmount(transaction.AmountCents),
+			Amount:          scripts.ConvertCentsToAmount(amount),
 			Currency:        transaction.Currency.String,
-			TransactionType: transaction.TransactionType,
+			TransactionType: transactionType,
 		})
 	}
 
 	return transactions, nil
-}
-
-func convertAmountToCents(amount string) (int32, error) {
-	parts := strings.Split(amount, ".")
-	dollars, err := strconv.Atoi(parts[0])
-	if err != nil {
-		return 0, err
-	}
-	cents, err := strconv.Atoi(parts[1])
-	if err != nil {
-		return 0, err
-	}
-	total := int32(cents + (dollars * 100))
-	return total, nil
-}
-
-func convertCentsToAmount(cents int32) string {
-	dollars := cents / 100
-	remainder := cents % 100
-	return fmt.Sprintf("%d.%.2d", dollars, remainder)
 }
