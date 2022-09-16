@@ -1,0 +1,161 @@
+_type: export
+__export_format: 4
+__export_date: 2022-09-16T05:29:01.006Z
+__export_source: insomnia.desktop.app:v2022.5.1
+resources:
+  - _id: req_036a5744cbd14b6c9266acf55d9eee91
+    parentId: wrk_8ec60af30b5a45b5974466ce4b6bab8a
+    modified: 1663305334479
+    created: 1663285853806
+    url: "{{host}}/load/b"
+    name: load
+    description: ""
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"messageId": "b",
+        	"userId": "1",
+        	"transactionAmount": {
+        		"amount": "101.01",
+        		"currency": "USD",
+        		"debitOrCredit": "CREDIT"
+        	}
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: application/json
+        id: pair_fd83a52dcc0d43af90efd585d057d3b5
+    authentication: {}
+    metaSortKey: -1663285853806
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: wrk_8ec60af30b5a45b5974466ce4b6bab8a
+    parentId: null
+    modified: 1663285814883
+    created: 1663285814883
+    name: bank
+    description: ""
+    scope: collection
+    _type: workspace
+  - _id: req_04512b69813d4e23a37913c5928e1914
+    parentId: wrk_8ec60af30b5a45b5974466ce4b6bab8a
+    modified: 1663305474538
+    created: 1663289353973
+    url: "{{host}}/authorization/c"
+    name: authorization
+    description: ""
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"messageId": "c",
+        	"userId": "1",
+        	"transactionAmount": {
+        		"amount": "10.10",
+        		"currency": "USD",
+        		"debitOrCredit": "DEBIT"
+        	}
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: application/json
+        id: pair_fd83a52dcc0d43af90efd585d057d3b5
+    authentication: {}
+    metaSortKey: -1663285837242
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: req_51f3e1ca5c5e4ff0aad0447f45621cfb
+    parentId: wrk_8ec60af30b5a45b5974466ce4b6bab8a
+    modified: 1663302438696
+    created: 1663285820678
+    url: "{{host}}/ping"
+    name: ping
+    description: ""
+    method: GET
+    body: {}
+    parameters: []
+    headers: []
+    authentication: {}
+    metaSortKey: -1663285820678
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: env_4068a2f128bd3582af0d92304c69e51016d5390c
+    parentId: wrk_8ec60af30b5a45b5974466ce4b6bab8a
+    modified: 1663302342470
+    created: 1663285814899
+    name: Base Environment
+    data:
+      host: localhost:8080
+    dataPropertyOrder:
+      "&":
+        - host
+    color: null
+    isPrivate: false
+    metaSortKey: 1663285814899
+    _type: environment
+  - _id: jar_4068a2f128bd3582af0d92304c69e51016d5390c
+    parentId: wrk_8ec60af30b5a45b5974466ce4b6bab8a
+    modified: 1663285814901
+    created: 1663285814901
+    name: Default Jar
+    cookies: []
+    _type: cookie_jar
+  - _id: spc_6899ceb122ca40aab4872d0ccdf3cc74
+    parentId: wrk_8ec60af30b5a45b5974466ce4b6bab8a
+    modified: 1663285814892
+    created: 1663285814892
+    fileName: bank
+    contents: ""
+    contentType: yaml
+    _type: api_spec
+  - _id: env_7f25a3e511724087885ecc98a11a0cb3
+    parentId: env_4068a2f128bd3582af0d92304c69e51016d5390c
+    modified: 1663302374157
+    created: 1663302345334
+    name: local
+    data:
+      host: localhost:8080
+    dataPropertyOrder:
+      "&":
+        - host
+    color: "#3544bb"
+    isPrivate: false
+    metaSortKey: 1663302345334
+    _type: environment
+  - _id: env_0829d048e9874fdfad20278be86946fe
+    parentId: env_4068a2f128bd3582af0d92304c69e51016d5390c
+    modified: 1663305248169
+    created: 1663302378098
+    name: prod
+    data:
+      host: https://archive.chaggie.com
+    dataPropertyOrder:
+      "&":
+        - host
+    color: "#de1b1b"
+    isPrivate: false
+    metaSortKey: 1663302345384
+    _type: environment
