@@ -29,28 +29,53 @@ func runserver(verbose bool) error {
 	}
 
 	r := repository.NewTransactionRepo(db)
-
 	s := server{
 		repo:    r,
 		verbose: verbose,
 	}
-	s.Run()
 
-	return nil
-}
-
-type server struct {
-	repo    repository.TransactionsRepo
-	verbose bool
-}
-
-func (s server) Run() {
 	router := gin.Default()
 	router.GET("/ping", s.pingRequest)
 	router.PUT("/authorization/:messageId", s.authorizationRequest)
 	router.PUT("/load/:messageId", s.loadRequest)
 
-	router.Run("localhost:8080")
+	s.router = router
+
+	s.Run()
+
+	return nil
+}
+
+func NewServer(verbose bool) *server {
+	databaseUrl := os.Getenv("POSTGRES_URL")
+	db, err := sql.Open("postgres", databaseUrl)
+	if err != nil {
+		return nil
+	}
+
+	r := repository.NewTransactionRepo(db)
+	s := server{
+		repo:    r,
+		verbose: verbose,
+	}
+
+	router := gin.Default()
+	router.GET("/ping", s.pingRequest)
+	router.PUT("/authorization/:messageId", s.authorizationRequest)
+	router.PUT("/load/:messageId", s.loadRequest)
+
+	s.router = router
+	return &s
+}
+
+type server struct {
+	repo    repository.TransactionsRepo
+	router  *gin.Engine
+	verbose bool
+}
+
+func (s server) Run() {
+	s.router.Run("localhost:8080")
 }
 
 func (s server) pingRequest(c *gin.Context) {

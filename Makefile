@@ -17,7 +17,7 @@ reset-db: db-reset migrate
 
 build:
 	@cd src && \
-	go build ./... -o bank
+	go build -o ../bank .
 
 run:
 	@cd src && \
